@@ -23,23 +23,37 @@ func getAllRates(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(sampleRates)
 }
 
+//reject out of hand if overnight, over month, or over year
 func getRate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r) //this is how you get params
-	requestStart := timeStampRead(params["startTime"])
-	//requestEnd := timeStampRead(params["endTime"])
-	requestStartDay := requestStart[0]
-	// requestStartTime := requestStart[1:]
-	// requestEndDay := requestEnd[0]
-	for _, item := range sampleRates {
-		if CompareRateDays(item.Days, requestStartDay) {
-			//check to see if times requested available
-			// if(strconv.Atoi(requestStartTime[0]) > item.Times)
-			json.NewEncoder(w).Encode(item) //this just finds the first one matching, more code needs to be done
-			return
+
+	params := mux.Vars(r)
+	if !isOverlappingOrInvalid(params["startTime"], params["endTime"]) {
+		requestStart := timeStampRead(params["startTime"])
+		requestEnd := timeStampRead(params["endTime"])
+
+		requestDay := requestStart[0]
+		requestStartTime := requestStart[1:]
+		requestEndTime := requestEnd[1:]
+
+		for _, item := range sampleRates {
+			if CompareRateDays(item.Days, requestDay) {
+				//check to see if times requested available
+				hours := parseRateTimes(item.Times)
+				startHr := hours[0]
+				endHr := hours[1]
+				if compareHours(startHr, requestStartTime, "start") && compareHours(endHr, requestEndTime, "end") {
+					json.NewEncoder(w).Encode(item)
+					return
+				}
+
+			}
 		}
+		json.NewEncoder(w).Encode(&Rate{})
+	} else {
+		json.NewEncoder(w).Encode("No rates available for specified time frame")
+		return
 	}
-	json.NewEncoder(w).Encode(&Rate{})
 }
 
 func addRate(w http.ResponseWriter, r *http.Request) {
