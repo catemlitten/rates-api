@@ -43,15 +43,16 @@ func getRate(w http.ResponseWriter, r *http.Request) {
 				startHr := hours[0]
 				endHr := hours[1]
 				if compareHours(startHr, requestStartTime, "start") && compareHours(endHr, requestEndTime, "end") {
-					json.NewEncoder(w).Encode(item)
+					json.NewEncoder(w).Encode(item.Price)
 					return
 				}
 
 			}
 		}
-		json.NewEncoder(w).Encode(&Rate{})
+		w.WriteHeader(http.StatusNoContent) //code 204
+		return
 	} else {
-		json.NewEncoder(w).Encode("No rates available for specified time frame")
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 }

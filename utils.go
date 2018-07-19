@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -78,27 +77,27 @@ func isOverlappingOrInvalid(start string, end string) bool {
 
 //Go does not support method overloading nor default params so string was used
 func compareHours(rateTime int, requestedTimes []string, comparator string) bool {
-	timeCombine := strings.Join(requestedTimes, "") // make [9,15] into '915'
-	//1000, 900, 1015, 915, 000
+	requestHour := fixTime(requestedTimes)
 	if comparator == "start" {
-		requestStart, startErr := strconv.Atoi(timeCombine)
-
-		if startErr != nil {
-			log.Fatal(startErr)
-		}
-		fmt.Println(requestStart, rateTime)
-		if requestStart > rateTime {
+		if requestHour > rateTime {
 			return true
 		}
 		return false
 	} else {
-		requestEnd, endErr := strconv.Atoi(requestedTimes[1])
-		if endErr != nil {
-			log.Fatal(endErr)
-		}
-		if requestEnd < rateTime {
+		if requestHour < rateTime {
 			return true
 		}
 		return false
 	}
+}
+
+func fixTime(requestedTimes []string) int {
+	if requestedTimes[1] == "0" {
+		requestedTimes[1] = "00" //so 900 is compared to 915 and not 90 v 915
+	}
+	timeCombine, err := strconv.Atoi(strings.Join(requestedTimes, "")) // make [9,15] into '915'
+	if err != nil {
+		log.Fatal(err)
+	}
+	return timeCombine
 }
