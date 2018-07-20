@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -68,6 +69,121 @@ func TestGetSelectRate(t *testing.T) {
 			if testCase.status == 200 {
 				assert.Equal(t, testCase.rate, body, "Matching response is expected")
 			}
+		})
+	}
+}
+
+func TestAddRate(t *testing.T) {
+	testTable := []struct {
+		name   string
+		days   string
+		times  string
+		rate   int
+		status int
+	}{
+		{name: "Testing valid rate: Thursday 4:00AM to 9:00am, rate of 2500", days: "thurs", times: "0400-0900", rate: 2500, status: 201},
+		{name: "Testing valid rate: Monday, Thursday, Saturday 10:00AM to 9:00PM, rate of 370", days: "mon,thurs,sat", times: "1000-2100", rate: 3700, status: 201},
+	}
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			fmt.Println(testCase.name)
+			rate := &Rate{
+				Days:  testCase.days,
+				Times: testCase.times,
+				Price: testCase.rate,
+			}
+			jsonRateObj, _ := json.Marshal(rate)
+			request, _ := http.NewRequest("POST", "/rates/", bytes.NewBuffer(jsonRateObj))
+			response := httptest.NewRecorder()
+			Router().ServeHTTP(response, request)
+			assert.Equal(t, testCase.status, response.Code, "Matching response is expected")
+		})
+	}
+}
+
+/* unclear how to fully replicate behavior of live app.
+Days and times which are not strings become "" and rates which are not ints become
+the number zero. Due to strict typing however it was not possible to feed incorrect data types into the rate without
+manually converting first.
+*/
+func TestMalformedPostData(t *testing.T) {
+	testTable := []struct {
+		name   string
+		days   string
+		times  string
+		rate   int
+		status int
+	}{
+		{name: "Testing badly formatted data (days)", days: "", times: "0900-0700", rate: 100, status: 400},
+		{name: "Testing badly formatted data (hours)", days: "mon,tues", times: "", rate: 100, status: 400},
+		{name: "Testing badly formatted data (price)", days: "mon,tues", times: "0900-0700", rate: 0, status: 400},
+	}
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			fmt.Println(testCase.name)
+
+			rate := &Rate{
+				Days:  testCase.days,
+				Times: testCase.times,
+				Price: testCase.rate,
+			}
+			jsonRateObj, _ := json.Marshal(rate)
+			request, _ := http.NewRequest("POST", "/rates/", bytes.NewBuffer(jsonRateObj))
+			response := httptest.NewRecorder()
+			Router().ServeHTTP(response, request)
+			assert.Equal(t, testCase.status, response.Code, "Matching response is expected")
+		})
+	}
+}
+
+func TestAdjustRate(t *testing.T) {
+	testTable := []struct {
+		name     string
+		adjDays  string
+		adjTimes string
+		newDays  string
+		newTimes string
+		rate     int
+		status   int
+	}{
+		{name: "Adjusting exisiting time: Wednesday 6am-6pm to Tu/Th 6am-Noon", adjDays: "wed", adjTimes: "0600-1800", newDays: "tues,thurs", newTimes: "0600-1200", rate: 2500, status: 200},
+		{name: "Attempt to adjust non-existant rate Mon/Thur/Sat from 10am-9pm", adjDays: "mon,thur,sat", adjTimes: "1000-2100", newDays: "mon,thurs", newTimes: "1100-1400", rate: 3700, status: 400},
+	}
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			fmt.Println(testCase.name)
+			rate := &Rate{
+				Days:  testCase.newDays,
+				Times: testCase.newTimes,
+				Price: testCase.rate,
+			}
+			jsonRateObj, _ := json.Marshal(rate)
+			request, _ := http.NewRequest("PUT", "/rates/"+testCase.adjDays+"/"+testCase.adjTimes, bytes.NewBuffer(jsonRateObj))
+			response := httptest.NewRecorder()
+			Router().ServeHTTP(response, request)
+			assert.Equal(t, testCase.status, response.Code, "Matching response is expected")
+		})
+	}
+}
+
+func TestRemoveRate(t *testing.T) {
+	testTable := []struct {
+		name   string
+		days   string
+		times  string
+		rate   int
+		status int
+	}{
+		{name: "Remove exisiting time: Wednesday 6am-6pm to Sun/Tu 1am-7am", days: "sun,tues", times: "0100-0700", status: 200},
+		{name: "Attempt to remove non-existant rate Mon/Thur/Sat from 10am-9pm", days: "mon,thur,sat", times: "1000-2100", status: 404},
+	}
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			fmt.Println(testCase.name)
+			request, _ := http.NewRequest("DELETE", "/rates/"+testCase.days+"/"+testCase.times, nil)
+			response := httptest.NewRecorder()
+			Router().ServeHTTP(response, request)
+			assert.Equal(t, testCase.status, response.Code, "Matching response is expected")
 		})
 	}
 }
