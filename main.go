@@ -17,18 +17,6 @@ type Rate struct {
 var sampleRates []Rate
 
 func startServer() {
-	router := mux.NewRouter()
-	router.HandleFunc("/rates/", getAllRates).Methods("GET")
-	router.HandleFunc("/rates/{startTime}/{endTime}", getRate).Methods("GET")
-	router.HandleFunc("/rates/", addRate).Methods("POST")
-	router.HandleFunc("/rates/{days}/{hours}", adjustRate).Methods("PUT")
-	router.HandleFunc("/rates/{days}/{hours}", removeRate).Methods("DELETE")
-
-	log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-func main() {
-
 	//Sample data
 	sampleRates = append(sampleRates, Rate{
 		Days:  "mon,tues,thurs",
@@ -51,5 +39,16 @@ func main() {
 		Times: "0100-0700",
 		Price: 925})
 
+	router := mux.NewRouter()
+	router.HandleFunc("/rates/", getAllRates).Methods("GET")
+	router.HandleFunc("/rates/{startTime}/{endTime}", getRate).Methods("GET")
+	router.HandleFunc("/rates/", addRate).Methods("POST")
+	router.HandleFunc("/rates/{days}/{hours}", adjustRate).Methods("PUT")
+	router.HandleFunc("/rates/{days}/{hours}", removeRate).Methods("DELETE")
+
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
+func main() {
 	startServer()
 }

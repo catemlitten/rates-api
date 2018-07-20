@@ -1,87 +1,73 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
-	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 )
 
-//TestGetAll determines if generic GET works
-func TestGetAll(t *testing.T) {
+// general mux/http testing for golang based off tutorial: https://www.thepolyglotdeveloper.com/2017/02/unit-testing-golang-application-includes-http/
+func Router() *mux.Router {
 	go startServer()
-	client := &http.Client{
-		Timeout: 1 * time.Second,
-	}
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	//https://godoc.org/github.com/jarcoal/httpmock#RegisterResponder
-	httpmock.RegisterResponder("GET", "http://localhost:8080/rates/",
-		httpmock.NewStringResponder(200, `[
-			{
-			Days:  "mon,tues,thurs",
-			Times: "0900-2100",
-			Price: 1500
-		},
-			]`))
-
-	r, _ := http.NewRequest("GET", "http://localhost:8080/rates/", nil)
-
-	resp, err := client.Do(r)
-	if err != nil {
-		panic(err)
-	}
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	router := mux.NewRouter()
+	router.HandleFunc("/rates/", getAllRates).Methods("GET")
+	router.HandleFunc("/rates/{startTime}/{endTime}", getRate).Methods("GET")
+	router.HandleFunc("/rates/", addRate).Methods("POST")
+	router.HandleFunc("/rates/{days}/{hours}", adjustRate).Methods("PUT")
+	router.HandleFunc("/rates/{days}/{hours}", removeRate).Methods("DELETE")
+	return router
 }
 
-func TestGetRate(t *testing.T) {
-	go startServer()
-	client := &http.Client{
-		Timeout: 1 * time.Second,
+func TestGetAll(t *testing.T) {
+	testTable := []struct {
+		name   string
+		status int
+	}{
+		{name: "Testing generic GET, no params", status: 200},
 	}
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	//https://godoc.org/github.com/jarcoal/httpmock#RegisterResponder
-	httpmock.RegisterResponder("GET", "http://localhost:8080/rates/",
-		httpmock.NewStringResponder(200, `[
-			{
-			Days:  "mon,tues,thurs",
-			Times: "0900-2100",
-			Price: 1500
-		},
-		{
-			Days:  "fri,sat,sun",
-			Times: "0900-2100",
-			Price: 2000
-		},
-		{
-			Days:  "wed",
-			Times: "0600-1800",
-			Price: 1750
-		},
-		{
-			Days:  "mon,wed,sat",
-			Times: "0100-0500",
-			Price: 1000
-		},
-		{
-			Days:  "sun,tues",
-			Times: "0100-0700",
-			Price: 925
-		}
-			]`))
-
-	r, _ := http.NewRequest("GET", "http://localhost:8080/rates/2015-07-04T09:10:00Z/2015-07-04T20:59:00Z", nil)
-
-	resp, err := client.Do(r)
-	if err != nil {
-		panic(err)
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			fmt.Println(testCase.name)
+			request, _ := http.NewRequest("GET", "/rates/", nil)
+			response := httptest.NewRecorder()
+			Router().ServeHTTP(response, request)
+			assert.Equal(t, testCase.status, response.Code, "Matching response is expected")
+		})
 	}
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetSelectRate(t *testing.T) {
+	testTable := []struct {
+		name      string
+		startTime string
+		endTime   string
+		rate      int
+		status    int
+		err       string
+	}{
+		{name: "Testing valid rate: Wednesday 1:15AM to 4am", startTime: "2015-07-01T01:15:00Z", endTime: "2015-07-01T04:00:00Z", rate: 1000, status: 200},
+		{name: "Testing unavailable rate: Wednesday 1:15am to 5am (is not inclusive)", startTime: "2015-07-01T01:15:00Z", endTime: "2015-07-01T05:00:00Z", err: "Rate not available for requested times.", status: 404},
+		{name: "Testing bad params: No end time", startTime: "2015-07-01T01:15:00Z", err: "404 page not found", status: 404},
+		{name: "Testing bad params: Invalid dates (bad format)", startTime: "abcedefg", err: "404 page not found", status: 404},
+		{name: "Testing bad params: Invalid dates (times outside range)", startTime: "2015-07-01T01:15:00Z", endTime: "2018-07-01T05:00:00Z", err: "Rate not available for requested times.", status: 404},
+	}
+	for _, testCase := range testTable {
+		t.Run(testCase.name, func(t *testing.T) {
+			fmt.Println(testCase.name)
+			request, _ := http.NewRequest("GET", "/rates/"+testCase.startTime+"/"+testCase.endTime, nil)
+			response := httptest.NewRecorder()
+			Router().ServeHTTP(response, request)
+			body := 0
+			json.NewDecoder(response.Body).Decode(&body)
+			assert.Equal(t, testCase.status, response.Code, "Matching response is expected")
+			if testCase.status == 200 {
+				assert.Equal(t, testCase.rate, body, "Matching response is expected")
+			}
+		})
+	}
 }
