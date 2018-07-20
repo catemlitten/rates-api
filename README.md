@@ -10,6 +10,8 @@ Table of Contents
 
 [**End Points**](#endpoints)
 
+[**Build & Use Instructions**](#build)
+
 <br />
 
 <a name="specs"></a>
@@ -41,6 +43,12 @@ A user can POST against `/rates/` to insert a new rate. As the data is static th
 
 A user can GET with a start and end time to recieve a specific price. A start date without an end date will return a 404.
 
-### /rates/{time}
+### /rates/{days}/{hours}
 
 A user can PUT or DELETE to this endpoint and either update a a specified rate or remove it. As the data is static this will not persist after shutdown.
+
+<a name="build"></a>
+Build and Use
+--------------------------
+
+`cd` into `rates-api` and run `go build` followed by `./rates-api.exe`. You can either use curl or Postman to test the API as it has dummy data loaded in.

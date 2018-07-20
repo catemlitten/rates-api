@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -16,58 +15,6 @@ type Rate struct {
 }
 
 var sampleRates []Rate
-
-//Verbs
-func getAllRates(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(sampleRates)
-}
-
-//reject out of hand if overnight, over month, or over year
-func getRate(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	params := mux.Vars(r)
-	if !isOverlappingOrInvalid(params["startTime"], params["endTime"]) {
-		requestStart := timeStampRead(params["startTime"])
-		requestEnd := timeStampRead(params["endTime"])
-
-		requestDay := requestStart[0]
-		requestStartTime := requestStart[1:]
-		requestEndTime := requestEnd[1:]
-
-		for _, item := range sampleRates {
-			if CompareRateDays(item.Days, requestDay) {
-				//check to see if times requested available
-				hours := parseRateTimes(item.Times)
-				startHr := hours[0]
-				endHr := hours[1]
-				if compareHours(startHr, requestStartTime, "start") && compareHours(endHr, requestEndTime, "end") {
-					json.NewEncoder(w).Encode(item.Price)
-					return
-				}
-
-			}
-		}
-		w.WriteHeader(http.StatusNoContent) //code 204
-		return
-	} else {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-}
-
-func addRate(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func adjustRate(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func removeRate(w http.ResponseWriter, r *http.Request) {
-
-}
 
 /*
 User should be able to curl against API with iso format dates and get back rates if available, notice of unavailable if do not exist
@@ -106,9 +53,9 @@ func main() {
 
 	router.HandleFunc("/rates/", getAllRates).Methods("GET")
 	router.HandleFunc("/rates/{startTime}/{endTime}", getRate).Methods("GET")
-	router.HandleFunc("/rates", addRate).Methods("POST")
-	router.HandleFunc("/rates/{timeFrame}", adjustRate).Methods("PUT")
-	router.HandleFunc("/rates/{timeFrame}", removeRate).Methods("DELETE")
+	router.HandleFunc("/rates/", addRate).Methods("POST")
+	router.HandleFunc("/rates/{days}/{hours}", adjustRate).Methods("PUT")
+	router.HandleFunc("/rates/{days}/{hours}", removeRate).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
