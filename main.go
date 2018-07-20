@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Use structs as models
+// Rate model based on sample data
 type Rate struct {
 	Days  string `json:"days"`
 	Times string `json:"times"`
@@ -16,18 +16,18 @@ type Rate struct {
 
 var sampleRates []Rate
 
-/*
-User should be able to curl against API with iso format dates and get back rates if available, notice of unavailable if do not exist
-TODO:
-Convert ISO dates to Mon-Sun dates, times. Return rate if avaialble
-If start time === request start time or vv endtime === request end time, does not fully encapuslate and is not available
+func startServer() {
+	router := mux.NewRouter()
+	router.HandleFunc("/rates/", getAllRates).Methods("GET")
+	router.HandleFunc("/rates/{startTime}/{endTime}", getRate).Methods("GET")
+	router.HandleFunc("/rates/", addRate).Methods("POST")
+	router.HandleFunc("/rates/{days}/{hours}", adjustRate).Methods("PUT")
+	router.HandleFunc("/rates/{days}/{hours}", removeRate).Methods("DELETE")
 
-get rates by time frame
-parse JSON for days => if day match determine if time match.
-*/
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
 
 func main() {
-	router := mux.NewRouter()
 
 	//Sample data
 	sampleRates = append(sampleRates, Rate{
@@ -51,11 +51,5 @@ func main() {
 		Times: "0100-0700",
 		Price: 925})
 
-	router.HandleFunc("/rates/", getAllRates).Methods("GET")
-	router.HandleFunc("/rates/{startTime}/{endTime}", getRate).Methods("GET")
-	router.HandleFunc("/rates/", addRate).Methods("POST")
-	router.HandleFunc("/rates/{days}/{hours}", adjustRate).Methods("PUT")
-	router.HandleFunc("/rates/{days}/{hours}", removeRate).Methods("DELETE")
-
-	log.Fatal(http.ListenAndServe(":8080", router))
+	startServer()
 }

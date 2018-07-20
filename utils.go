@@ -7,14 +7,17 @@ import (
 	"time"
 )
 
+//CompareRateDays should slice out appropriate portion of date string and determine if found in rate days
 func CompareRateDays(days string, requestDay string) bool {
 	//date parsed from user as 'Saturday'/full name
 	//days stored as mon/tues/weds/thurs/fri/sat/sun
 	requestDay = strings.ToLower(requestDay)
-	if requestDay != "thursday" {
+	if requestDay != "thursday" && requestDay != "tuesday" {
 		requestDay = requestDay[0:3]
-	} else {
+	} else if requestDay == "thursday" {
 		requestDay = requestDay[0:5]
+	} else {
+		requestDay = requestDay[0:4]
 	}
 	return strings.Contains(days, requestDay)
 }
