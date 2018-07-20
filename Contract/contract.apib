@@ -1,0 +1,57 @@
+FORMAT: 1A
+HOST: http://localhost:8080
+
+# Rates API
+A code challenge API built in Go for retrieving rates based on dates giving in ISO format.
+
+# Group Rates
+
+## Rates Collection [/rates]
+
+### Get all rates [GET /rates]
++ Response 200 (application/json)
+    + Attributes
+        - rates (array[Rate])
+
+
+### Get individual rate [GET /rates/{startTime}/{endTime}]
++ Parameters
+    + startTime: `2015-07-01T01:15:00Z` - The start date and time, in ISO format
+    + endTime: `2015-07-01T04:00:00Z` - The end date and time, in ISO format
++ Response 200 (application/json)
+    + Attributes
+        - Include Rate
+
+### Add a rate [POST /rates/]
++ Attributes (object)
+    + Rate
++ Response 201 (application/json)
+    + Attributes
+        - Include Rate
+
+### Update a rate [PUT /rates/{days}/{hours}]
++ Parameters
+    + days: `mon,tues,fri` - Days of the week in abbreviated form. Must match already exisiting rate.
+    + hours: `0800-1400` - The hours the rate applies to. Must match already exisiting rate.
++ Attributes (object)
+    + Rate
++ Response 200 (application/json)
+    + Attributes
+        - Include Rate
+
+### Remove a rate [DELETE /rates/{days}/{hours}]
++ Parameters
+    + days: `mon,tues,fri` - Days of the week in abbreviated form. Must match already exisiting rate.
+    + hours: `0800-1400` - The hours the rate applies to. Must match already exisiting rate.
++ Attributes (object)
+    + Rate
++ Response 200 (application/json)
+    + Attributes
+        - Include Rate
+
+# Data structures
+
+## Rate (object)
+- days: `mon,fri` (string) - the days of the week in abbreviated form to which the rate applies
+- times: `0400-1000` (string) - the times in 24 hour notation within which the rate is valid
+- price: 1500 (number) - the price given for the time range

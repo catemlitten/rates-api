@@ -64,6 +64,7 @@ func addRate(w http.ResponseWriter, r *http.Request) {
 	}
 	sampleRates = append(sampleRates, rate)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(rate)
 	return
 }

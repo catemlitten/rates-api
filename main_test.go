@@ -81,8 +81,8 @@ func TestAddRate(t *testing.T) {
 		rate   int
 		status int
 	}{
-		{name: "Testing valid rate: Thursday 4:00AM to 9:00am, rate of 2500", days: "thurs", times: "0400-0900", rate: 2500, status: 200},
-		{name: "Testing valid rate: Monday, Thursday, Saturday 10:00AM to 9:00PM, rate of 370", days: "mon,thurs,sat", times: "1000-2100", rate: 3700, status: 200},
+		{name: "Testing valid rate: Thursday 4:00AM to 9:00am, rate of 2500", days: "thurs", times: "0400-0900", rate: 2500, status: 201},
+		{name: "Testing valid rate: Monday, Thursday, Saturday 10:00AM to 9:00PM, rate of 370", days: "mon,thurs,sat", times: "1000-2100", rate: 3700, status: 201},
 	}
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {

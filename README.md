@@ -8,8 +8,6 @@ Table of Contents
 
 [**Specifications**](#specs)
 
-[**End Points**](#endpoints)
-
 [**Build & Use Instructions**](#build)
 
 [**Testing**](#testing)
@@ -31,30 +29,13 @@ Data will be in JSON with the following structure:
 ```
 The user must be able to curl against the API and recieve a price. For example, `curl -i http://localhost:8080/rates/2018-07-19T09:10:00Z/2018-07-19T20:59:00Z`checks for a rate on a Thursday between the hours of 9:10am and 8:59pm and would recieve back `1500` with a status code of `200`. `curl -i http://localhost:8080/rates/2018-07-19T01:09:00Z/2018-07-19T21:00:00Z` would return `Rate not available for requested times.` and a staus code of `404`.
 
-
-<a name="endpoints"></a>
-End Points
-------------
-
-### /rates/
-
-A user can GET against `/rates/` without parameters and will recieve back all rates.
-
-A user can POST against `/rates/` to insert a new rate. As the data is static this will not persist after shutdown.
-
-### /rates/{start}/{end}
-
-A user can GET with a start and end time to recieve a specific price. A start date without an end date will return a 404.
-
-### /rates/{days}/{hours}
-
-A user can PUT or DELETE to this endpoint and either update a a specified rate or remove it. As the data is static this will not persist after shutdown.
+The full API contract is located in */Contract* and was written using <a href="https://apiblueprint.org/">API Blueprint</a>. <a href="https://www.npmjs.com/package/aglio">aglio</a> was used to create the end-user friendly *contract.html*
 
 <a name="build"></a>
 Build and Use
 --------------------------
 
-`cd` into `rates-api` and run `go build` followed by `./rates-api.exe`. You can either use curl or Postman to test the API as it has dummy data loaded in.
+`cd` into `rates-api` and run `go get ./..` (this will install all dependencies) followed by `go build`. Once the program is built run `./rates-api.exe`. You can either use curl or Postman to test the API as it has dummy data loaded in.
 
 <a name="testing"></a>
 Testing
