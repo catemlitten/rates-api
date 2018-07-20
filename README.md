@@ -12,6 +12,8 @@ Table of Contents
 
 [**Build & Use Instructions**](#build)
 
+[**Testing**](#testing)
+
 <br />
 
 <a name="specs"></a>
@@ -27,7 +29,8 @@ Data will be in JSON with the following structure:
         }
     
 ```
-The user must be able to curl against the API and recieve a price. For example, `curl http://localhost:8080/rates/2018-07-19T09:10:00Z/2018-07-19T20:59:00Z`checks for a rate on a Thursday between the hours of 9:10am and 8:59pm and would recieve back `1500`.
+The user must be able to curl against the API and recieve a price. For example, `curl -i http://localhost:8080/rates/2018-07-19T09:10:00Z/2018-07-19T20:59:00Z`checks for a rate on a Thursday between the hours of 9:10am and 8:59pm and would recieve back `1500` with a status code of `200`. `curl -i http://localhost:8080/rates/2018-07-19T01:09:00Z/2018-07-19T21:00:00Z` would return `Rate not available for requested times.` and a staus code of `404`.
+
 
 <a name="endpoints"></a>
 End Points
@@ -52,3 +55,9 @@ Build and Use
 --------------------------
 
 `cd` into `rates-api` and run `go build` followed by `./rates-api.exe`. You can either use curl or Postman to test the API as it has dummy data loaded in.
+
+<a name="testing"></a>
+Testing
+--------------------------
+
+Testing was done using the <a href="https://golang.org/pkg/net/http/httptest/">httptest</a> package as well as the <a href="https://github.com/stretchr/testify">testify</a> toolkit. As this was a first attempt doing API testing in Go, it is possible that tests were not as robust as hoped for. Currently it starts the Mux server and relies on the same mocked data that a live usage would have access to.
