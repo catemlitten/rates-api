@@ -12,7 +12,6 @@ Table of Contents
 
 [**Testing**](#testing)
 
-<br />
 
 <a name="specs"></a>
 Specifications

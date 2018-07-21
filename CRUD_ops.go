@@ -89,7 +89,9 @@ func adjustRate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	w.WriteHeader(http.StatusBadRequest) //code 400 - could not find to remove
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusNotFound) //code 404
+	w.Write([]byte("Could not locate rate to adjust."))
 }
 
 func removeRate(w http.ResponseWriter, r *http.Request) {
