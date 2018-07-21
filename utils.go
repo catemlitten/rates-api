@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -43,7 +45,6 @@ func timeStampRead(timeStamp string) []string {
 
 func parseRateTimes(rates string) []int {
 	rateSlice := strings.Split(rates, "-")
-	//in 0000-2300 format
 	rateTimes := make([]int, 2)
 	firstHr, err := strconv.Atoi(rateSlice[0])
 	if err != nil {
@@ -71,7 +72,7 @@ func isOverlappingOrInvalid(start string, end string) bool {
 	if tStart.Year() != tEnd.Year() || tStart.Day() != tEnd.Day() || tStart.Month() != tEnd.Month() {
 		return true
 	}
-	//if identical they have no actually requested valid time frame
+	//if identical they have not actually requested valid time frame
 	if tStart == tEnd {
 		return true
 	}
@@ -86,12 +87,11 @@ func compareHours(rateTime int, requestedTimes []string, comparator string) bool
 			return true
 		}
 		return false
-	} else {
-		if requestHour < rateTime {
-			return true
-		}
-		return false
 	}
+	if requestHour < rateTime {
+		return true
+	}
+	return false
 }
 
 func fixTime(requestedTimes []string) int {
@@ -103,4 +103,25 @@ func fixTime(requestedTimes []string) int {
 		log.Fatal(err)
 	}
 	return timeCombine
+}
+
+//Remove repetitive code within body of CRUD methods
+func setNonSuccessHeader(w http.ResponseWriter, status int, details string) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(status)
+	w.Write([]byte(details))
+}
+
+//basic check for data quality in put/post
+func rateTimeCheck(days string, times string) bool {
+	containsDays := regexp.MustCompile(`mon|tues|wed|thurs|fri|sat|sun`)
+	containsNumbers := regexp.MustCompile(`\d`)
+	containsOneHyphen := regexp.MustCompile(`-{1}`)
+	if !containsDays.MatchString(days) || containsNumbers.MatchString(days) || containsOneHyphen.MatchString(days) {
+		return false
+	}
+	if containsDays.MatchString(times) || !containsNumbers.MatchString(times) || !containsOneHyphen.MatchString(times) {
+		return false
+	}
+	return true
 }

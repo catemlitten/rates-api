@@ -21,6 +21,11 @@ A code challenge API built in Go for retrieving rates based on dates giving in I
 + Response 200 (application/json)
     + Attributes
         - Include Rate
++ Response 404 (text/plain; charset=utf-8)
+
+    + Body
+
+            Rate not available for requested times.
 
 ### Add a rate [POST /rates/]
 + Attributes (object)
@@ -28,6 +33,11 @@ A code challenge API built in Go for retrieving rates based on dates giving in I
 + Response 201 (application/json)
     + Attributes
         - Include Rate
++ Response 400 (text/plain; charset=utf-8)
+
+    + Body
+
+            Rate entered was potentially malformed. Please check data types.
 
 ### Update a rate [PUT /rates/{days}/{hours}]
 + Parameters
@@ -38,6 +48,16 @@ A code challenge API built in Go for retrieving rates based on dates giving in I
 + Response 200 (application/json)
     + Attributes
         - Include Rate
++ Response 400 (text/plain; charset=utf-8)
+
+    + Body
+
+            Rate entered was potentially malformed. Please check data types.
++ Response 404 (text/plain; charset=utf-8)
+
+    + Body
+
+            Could not locate rate to adjust.
 
 ### Remove a rate [DELETE /rates/{days}/{hours}]
 + Parameters
@@ -48,6 +68,11 @@ A code challenge API built in Go for retrieving rates based on dates giving in I
 + Response 200 (application/json)
     + Attributes
         - Include Rate
++ Response 404 (text/plain; charset=utf-8)
+
+    + Body
+
+            Unable to locate specified rate for deletion.
 
 # Data structures
 
