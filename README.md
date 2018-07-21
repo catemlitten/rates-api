@@ -30,6 +30,8 @@ The user must be able to curl against the API and recieve a price. For example, 
 
 The full API contract is located in */Contract* and was written using <a href="https://apiblueprint.org/">API Blueprint</a>. <a href="https://www.npmjs.com/package/aglio">aglio</a> was used to create the end-user friendly *contract.html*
 
+The desired implementations of *POST*, *PUT*, and *DELETE* operations were not explicitly detailed in the specifications document, so general use assumptions were made.
+
 <a name="build"></a>
 Build and Use
 --------------------------
@@ -40,4 +42,4 @@ Build and Use
 Testing
 --------------------------
 
-Testing was done using the <a href="https://golang.org/pkg/net/http/httptest/">httptest</a> package as well as the <a href="https://github.com/stretchr/testify">testify</a> toolkit. As this was a first attempt doing API testing in Go, it is possible that tests were not as robust as hoped for. Currently it starts the Mux server and relies on the same mocked data that a live usage would have access to.
+Testing was done using the <a href="https://golang.org/pkg/net/http/httptest/">httptest</a> package as well as the <a href="https://github.com/stretchr/testify">testify</a> toolkit. As this was a first attempt doing API testing in Go, it is possible that tests were not as robust as hoped for. Currently it starts the Mux server and relies on the same mocked data that a live usage would have access to. After building the program as noted above, type `go test` into the terminal and all tests will run.

@@ -114,8 +114,11 @@ func TestMalformedPostData(t *testing.T) {
 		rate   int
 		status int
 	}{
-		{name: "Testing badly formatted data (days)", days: "", times: "0900-0700", rate: 100, status: 400},
-		{name: "Testing badly formatted data (hours)", days: "mon,tues", times: "", rate: 100, status: 400},
+		{name: "Testing badly formatted data (empty days)", days: "", times: "0900-0700", rate: 100, status: 400},
+		{name: "Testing badly formatted data (numerical input in days)", days: "mon,tues,9", times: "0900-0700", rate: 100, status: 400},
+		{name: "Testing badly formatted data (empty hours)", days: "mon,tues", times: "", rate: 100, status: 400},
+		{name: "Testing badly formatted data (hours without hyphen)", days: "mon,tues", times: "09001800", rate: 100, status: 400},
+		{name: "Testing badly formatted data (alphabetical hours)", days: "mon,tues", times: "abc-def", rate: 100, status: 400},
 		{name: "Testing badly formatted data (price)", days: "mon,tues", times: "0900-0700", rate: 0, status: 400},
 	}
 	for _, testCase := range testTable {
@@ -147,7 +150,7 @@ func TestAdjustRate(t *testing.T) {
 		status   int
 	}{
 		{name: "Adjusting exisiting time: Wednesday 6am-6pm to Tu/Th 6am-Noon", adjDays: "wed", adjTimes: "0600-1800", newDays: "tues,thurs", newTimes: "0600-1200", rate: 2500, status: 200},
-		{name: "Attempt to adjust non-existant rate Mon/Thur/Sat from 10am-9pm", adjDays: "mon,thur,sat", adjTimes: "1000-2100", newDays: "mon,thurs", newTimes: "1100-1400", rate: 3700, status: 400},
+		{name: "Attempt to adjust non-existant rate Mon/Thur/Sat from 10am-9pm", adjDays: "mon,thur,sat", adjTimes: "1000-2100", newDays: "mon,thurs", newTimes: "1100-1400", rate: 3700, status: 404},
 	}
 	for _, testCase := range testTable {
 		t.Run(testCase.name, func(t *testing.T) {
