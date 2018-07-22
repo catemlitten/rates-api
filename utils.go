@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+/*
+Utility functions used by other aspects of the API. Abstracted out for clarity of code and reuse.
+*/
+
 //CompareRateDays should slice out appropriate portion of date string and determine if found in rate days
 func CompareRateDays(days string, requestDay string) bool {
 	//date parsed from user as 'Saturday'/full name
@@ -50,24 +54,29 @@ func parseRateTimes(rates string) []int {
 	if err != nil {
 		log.Fatal(err)
 	}
-	secondHr, secErr := strconv.Atoi(rateSlice[1])
-	if secErr != nil {
-		log.Fatal(secErr)
+	secondHr, err := strconv.Atoi(rateSlice[1])
+	if err != nil {
+		log.Fatal(err)
 	}
 	rateTimes[0] = firstHr
 	rateTimes[1] = secondHr
 	return rateTimes
 }
 
+/*
+As noted in the specification the rates do not overlap and requests are to be within a timeframe.
+As such any rates which can be determined quickly to be overlapping or invalid should be discarded.
+*/
 func isOverlappingOrInvalid(start string, end string) bool {
 	layout := "2006-01-02T15:04:05Z07:00" //ISO format
-	tStart, sErr := time.Parse(layout, start)
-	if sErr != nil {
-		log.Fatal(sErr)
+	tStart, err := time.Parse(layout, start)
+	if err != nil {
+		//if there is an error parsing the date it is invalid
+		return true
 	}
-	tEnd, eErr := time.Parse(layout, end)
-	if eErr != nil {
-		log.Fatal(eErr)
+	tEnd, err := time.Parse(layout, end)
+	if err != nil {
+		return true
 	}
 	if tStart.Year() != tEnd.Year() || tStart.Day() != tEnd.Day() || tStart.Month() != tEnd.Month() {
 		return true
@@ -79,10 +88,10 @@ func isOverlappingOrInvalid(start string, end string) bool {
 	return false
 }
 
-//Go does not support method overloading nor default params so string was used
-func compareHours(rateTime int, requestedTimes []string, comparator string) bool {
+//Go does not support method overloading nor default params. Bool is true for 'start'.
+func compareHours(rateTime int, requestedTimes []string, isStart bool) bool {
 	requestHour := fixTime(requestedTimes)
-	if comparator == "start" {
+	if isStart == true {
 		if requestHour > rateTime {
 			return true
 		}
