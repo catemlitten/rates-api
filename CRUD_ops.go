@@ -7,7 +7,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// CRUD operations
+/*
+CRUD operations for API.
+ As HATEOS is not implemented this is a level 2 RESTful API per the Richardson Maturity Model.
+*/
 
 func getAllRates(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -31,7 +34,7 @@ func getRate(w http.ResponseWriter, r *http.Request) {
 				hours := parseRateTimes(item.Times)
 				startHr := hours[0]
 				endHr := hours[1]
-				if compareHours(startHr, requestStartTime, "start") && compareHours(endHr, requestEndTime, "end") {
+				if compareHours(startHr, requestStartTime, true) && compareHours(endHr, requestEndTime, false) {
 					w.Header().Set("Content-Type", "application/json")
 					json.NewEncoder(w).Encode(item.Price)
 					return

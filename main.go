@@ -7,6 +7,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+/*
+Main file for API. Definition of Rate struct, routing, and sample data.
+*/
+
 // Rate model based on sample data
 type Rate struct {
 	Days  string `json:"days"`

@@ -12,7 +12,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// general mux/http testing for golang based off tutorial: https://www.thepolyglotdeveloper.com/2017/02/unit-testing-golang-application-includes-http/
+/*
+General test suite for all CRUD operations. A tutorial was used to understand how Mux testing is implemented.
+That tutorial can be found here: https://www.thepolyglotdeveloper.com/2017/02/unit-testing-golang-application-includes-http/
+*/
+
 func Router() *mux.Router {
 	go startServer()
 	router := mux.NewRouter()
@@ -101,8 +105,9 @@ func TestAddRate(t *testing.T) {
 	}
 }
 
-/* unclear how to fully replicate behavior of live app.
-Days and times which are not strings become "" and rates which are not ints become
+/*
+Unclear how to fully replicate behavior of the live app.
+When given days or times which are not strings they are transformed to "" and rates which are not ints become
 the number zero. Due to strict typing however it was not possible to feed incorrect data types into the rate without
 manually converting first.
 */
