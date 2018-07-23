@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <title>Rate API</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="style.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+    </head>
+
+    <body>
+            <div class="main-section">
+            <div class="name">
+                <h2>Rate API</h2>
+            </div>
+            <div class="content">
+                        <div class="form-style">
+                                <form id="searchForm">
+                                <fieldset>
+                                <label for="startTime">Starting after:</label>
+                                <input type="time" name="startTime" id="startTime">
+                                <label for="endTime">Ending before:</label>
+                                <input type="time" name="endTime" id="endTime">
+                                <label for="days">Select date (YY/MM/DD)</label>
+                                <div id="weekdays">
+                                <input 
+                                type="number" 
+                                id="year" 
+                                value="2018"
+                                min="2018"
+                                max="2050">
+                                <span></span>
+                                <input 
+                                type="number" 
+                                id="month" 
+                                value="7"
+                                min="1"
+                                max="12">
+                                <span></span>
+                                <input 
+                                type="number" 
+                                id="day" 
+                                value="22"
+                                min="1"
+                                max="31">
+                         
+                                </div>   
+                                </fieldset>
+                                <input type="submit" value="Search" />
+                                </form>
+                                </div>
+                            </div>
+                            <div class="content-40">
+                                    <div class="form-style">
+                                        <form>
+                                        <fieldset>
+                                            <div id="rate-results">Your rate:
+                                            <p id="rate"></p></div>
+                                    </div>   
+                                        </fieldset>
+                                        </form>
+                            </div>
+        </div> 
+        <div class="footer section">
+            <div class="section-content">
+                <p>&copy; Cat Litten 2018</p>
+            </div>
+        </div>
+        <script src="formhandle.js"></script>
+</body></html>

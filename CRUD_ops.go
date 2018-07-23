@@ -19,6 +19,7 @@ func getAllRates(w http.ResponseWriter, r *http.Request) {
 
 func getRate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	w.Header().Set("Access-Control-Allow-Origin", "null")
 	//reject out of hand if overnight, over month, or over year
 	if !isOverlappingOrInvalid(params["startTime"], params["endTime"]) {
 		requestStart := timeStampRead(params["startTime"])
@@ -91,6 +92,7 @@ func adjustRate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	setNonSuccessHeader(w, http.StatusNotFound, "Could not locate rate to adjust.")
+
 }
 
 func removeRate(w http.ResponseWriter, r *http.Request) {
