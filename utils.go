@@ -107,6 +107,9 @@ func fixTime(requestedTimes []string) int {
 	if requestedTimes[1] == "0" {
 		requestedTimes[1] = "00" //so 900 is compared to 915 and not 90 v 915
 	}
+	if len(requestedTimes[1]) == 1 {
+		requestedTimes[1] = "0" + requestedTimes[1]
+	}
 	timeCombine, err := strconv.Atoi(strings.Join(requestedTimes, "")) // make [9,15] into '915'
 	if err != nil {
 		log.Fatal(err)
@@ -133,4 +136,8 @@ func rateTimeCheck(days string, times string) bool {
 		return false
 	}
 	return true
+}
+
+func setCORS(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Origin", "null") //demo purposes only. page will be static.
 }

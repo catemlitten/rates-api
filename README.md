@@ -38,6 +38,8 @@ Build and Use
 
 `cd` into `rates-api` and run `go get ./..` (this will install all dependencies) followed by `go build`. Once the program is built run `./rates-api.exe`. You can either use curl or Postman to test the API as it has dummy data loaded in.
 
+A simple client facing webpage was also made (located in */Client*), but the form is exclusively tied to GET requests for searching specific rates. It is a static page and therefore for the purpose of demoing the headers for this GET request were set to `Access-Control-Allow-Origin` for `null`. This allows for demo use of the API via the webpage on both Chrome and Firefox. Edge does not work for reasons unclear, but it does not give any CORS warnings.
+
 <a name="testing"></a>
 Testing
 --------------------------
